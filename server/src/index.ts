@@ -1,5 +1,6 @@
 import express, { Express } from "express";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { createServer } from "http";
 import { env } from "./config/env";
 import { initSocket } from "./socket";
@@ -12,9 +13,26 @@ import activityRoutes from "./routes/activity.routes";
 const app: Express = express();
 const httpServer = createServer(app);
 
+// Rate limiting - prevent spam/abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { success: false, error: "Too many requests, please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Stricter rate limit for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Limit each IP to 20 auth requests per windowMs
+  message: { success: false, error: "Too many authentication attempts, please try again later." },
+});
+
 // Middleware
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
 app.use(express.json());
+app.use(limiter); // Apply general rate limit to all requests
 
 // Health check endpoint
 app.get("/api/health", (_req, res) => {
@@ -22,7 +40,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 // API routes
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes); // Stricter rate limit for auth
 app.use("/api/boards", boardRoutes);
 app.use("/api/boards/:boardId/lists", listRoutes);
 app.use("/api/boards/:boardId/lists/:listId/tasks", taskRoutes);
