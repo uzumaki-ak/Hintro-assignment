@@ -1,0 +1,47 @@
+services:
+  # Backend API Server with WebSocket support
+  - type: web
+    name: hintro-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: pnpm install && pnpm --filter server db:generate && pnpm --filter server build
+    startCommand: cd server && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hintro-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        value: https://hintro-client.onrender.com
+      - key: PORT
+        value: 10000
+
+  # Frontend Static Site
+  - type: web
+    name: hintro-client
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: pnpm install && pnpm --filter client build
+    staticPublishPath: client/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://hintro-api.onrender.com
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://hintro-api.onrender.com/api/:splat
+      - type: rewrite
+        source: /socket.io/*
+        destination: https://hintro-api.onrender.com/socket.io/:splat
+
+# PostgreSQL Database
+databases:
+  - name: hintro-db
+    region: oregon
+    plan: free
