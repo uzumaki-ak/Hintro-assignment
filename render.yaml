@@ -5,7 +5,7 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: pnpm install && pnpm --filter server db:generate && pnpm --filter server build
+    buildCommand: pnpm install && pnpm --filter server db:generate && pnpm --filter server build && pnpm --filter server db:push && pnpm --filter server db:seed:prod
     startCommand: cd server && node dist/index.js
     envVars:
       - key: NODE_ENV

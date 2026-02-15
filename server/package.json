@@ -9,6 +9,7 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx src/db/seed.ts",
+    "db:seed:prod": "node dist/db/seed-production.js",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:migrate:deploy": "prisma migrate deploy",
