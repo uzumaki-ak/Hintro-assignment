@@ -21,11 +21,10 @@ services:
       - key: PORT
         value: 10000
 
-  # Frontend Static Site
+  # Frontend Static Site (free tier is default, no plan needed)
   - type: web
     name: hintro-client
     env: static
-    plan: free
     buildCommand: pnpm install && pnpm --filter client build
     staticPublishPath: client/dist
     envVars:
