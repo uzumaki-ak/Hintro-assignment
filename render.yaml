@@ -25,7 +25,6 @@ services:
   - type: web
     name: hintro-client
     env: static
-    region: oregon
     plan: free
     buildCommand: pnpm install && pnpm --filter client build
     staticPublishPath: client/dist
