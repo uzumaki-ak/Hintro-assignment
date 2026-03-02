@@ -2,11 +2,22 @@ import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
 
+// Get the socket server URL based on environment
+const getSocketUrl = (): string => {
+  // In production, use the API URL from environment or default
+  if (import.meta.env.PROD) {
+    return import.meta.env.VITE_API_URL || "https://hintro-api.onrender.com";
+  }
+  // In development, use relative path (proxied by Vite)
+  return "/";
+};
+
 // Creates or returns existing socket connection with JWT auth
 export function getSocket(): Socket {
   if (!socket) {
     const token = localStorage.getItem("token");
-    socket = io("/", {
+    const url = getSocketUrl();
+    socket = io(url, {
       auth: { token },
       transports: ["websocket", "polling"],
       autoConnect: false,

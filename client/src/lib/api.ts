@@ -1,8 +1,19 @@
 import axios from "axios";
 
+// Get the API base URL based on environment
+const getBaseURL = (): string => {
+  // In production, use the full API URL
+  if (import.meta.env.PROD) {
+    const apiUrl = import.meta.env.VITE_API_URL || "https://hintro-api.onrender.com";
+    return `${apiUrl}/api`;
+  }
+  // In development, use relative path (proxied by Vite)
+  return "/api";
+};
+
 // Axios instance with base URL and auth interceptor
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: getBaseURL(),
   headers: { "Content-Type": "application/json" },
 });
 
